@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login / Registro</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM6E5c5b5qV9Yl5Wf92pmk5o9gf5eK7jz0p3N3" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
@@ -15,7 +15,6 @@
             apiKey: "AIzaSyAccQ-4A0H7rV4PCHFVoxA7VEkHOc97HlM",
             authDomain: "tickets-pro-d8d04.firebaseapp.com",
             projectId: "tickets-pro-d8d04",
-            storageBucket: "tickets-pro-d8d04.firebasestorage.app",
             messagingSenderId: "128182958053",
             appId: "1:128182958053:web:58b7dabb25d97d1cfd210c"
         };
@@ -29,7 +28,6 @@
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log('User logged in:', userCredential.user);
-                    // Redirigir al Dashboard
                     window.location.href = '/dashboard.html';
                 })
                 .catch((error) => {
@@ -43,7 +41,6 @@
             createUserWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log('User registered:', userCredential.user);
-                    // Redirigir al Dashboard
                     window.location.href = '/dashboard.html';
                 })
                 .catch((error) => {

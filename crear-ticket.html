@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Ticket</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAccQ-4A0H7rV4PCHFVoxA7VEkHOc97HlM",
+            authDomain: "tickets-pro-d8d04.firebaseapp.com",
+            projectId: "tickets-pro-d8d04",
+            messagingSenderId: "128182958053",
+            appId: "1:128182958053:web:58b7dabb25d97d1cfd210c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '/index.html';
+            }
+        });
+
+        async function createTicket() {
+            const name = document.getElementById('client-name').value;
+            const title = document.getElementById('ticket-title').value;
+            const description = document.getElementById('ticket-description').value;
+            const priority = document.getElementById('ticket-priority').value;
+            const category = document.getElementById('ticket-category').value;
+            const date = new Date();
+            const hour = `${date.getHours()}:${date.getMinutes()}`;
+            
+            try {
+                const querySnapshot = await getDocs(collection(db, "tickets"));
+                const id = querySnapshot.size + 1; // ID consecutivo
+
+                await addDoc(collection(db, "tickets"), {
+                    id: id,
+                    clientName: name,
+                    title: title,
+                    description: description,
+                    priority: priority,
+                    agentAssigned: '',
+                    status: "Abierto",
+                    category: category,
+                    registrationDate: date.toLocaleDateString(),
+                    ticketHour: hour,
+                    estimatedResponseTime: '',
+                    adminComments: '',
+                    resolved: false
+                });
+                alert('Ticket creado exitosamente');
+                window.location.href = '/lista-tickets.html';
+            } catch (error) {
+                console.error('Error creando el ticket:', error);
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="text-gray-600 body-font">
+        <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+            <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+                <span class="ml-3 text-xl">Sistema de Tickets</span>
+            </a>
+            <nav id="navbar" class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+                <a href="/dashboard.html" class="mr-5 hover:text-gray-900">Dashboard</a>
+                <a href="/crear-ticket.html" class="mr-5 hover:text-gray-900">Crear Ticket</a>
+                <a href="/lista-tickets.html" class="mr-5 hover:text-gray-900">Lista de Tickets</a>
+                <a href="/perfil.html" class="mr-5 hover:text-gray-900">Perfil</a>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cerrar Sesión</button>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto mt-10">
+        <h1 class="text-2xl font-bold mb-4">Crear Nuevo Ticket</h1>
+        <form onsubmit="event.preventDefault(); createTicket();">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="client-name">
+                    Nombre del Cliente
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="client-name" type="text" placeholder="Nombre del Cliente" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="ticket-title">
+                    Título del Ticket
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="ticket-title" type="text" placeholder="Título" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="ticket-description">
+                    Descripción del Problema
+                </label>
+                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="ticket-description" placeholder="Descripción" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="ticket-priority">
+                    Nivel de Prioridad
+                </label>
+                <select id="ticket-priority" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    <option value="Baja">Baja</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="ticket-category">
+                    Categoría
+                </label>
+                <select id="ticket-category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                    <option value="Soporte Técnico">Soporte Técnico</option>
+                    <option value="Facturación">Facturación</option>
+                    <option value="Ventas">Ventas</option>
+                    <option value="Consultas Generales">Consultas Generales</option>
+                    <option value="Feedback">Feedback</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Crear Ticket
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

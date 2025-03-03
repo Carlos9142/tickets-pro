@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAccQ-4A0H7rV4PCHFVoxA7VEkHOc97HlM",
+            authDomain: "tickets-pro-d8d04.firebaseapp.com",
+            projectId: "tickets-pro-d8d04",
+            storageBucket: "tickets-pro-d8d04.firebasestorage.app",
+            messagingSenderId: "128182958053",
+            appId: "1:128182958053:web:58b7dabb25d97d1cfd210c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadDashboardData();
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+
+        async function loadDashboardData() {
+            const querySnapshot = await getDocs(collection(db, "tickets"));
+            let openTickets = 0;
+            let inProgressTickets = 0;
+            let closedTickets = 0;
+
+            querySnapshot.forEach((doc) => {
+                const ticket = doc.data();
+                switch (ticket.status) {
+                    case 'Abierto':
+                        openTickets++;
+                        break;
+                    case 'En Progreso':
+                        inProgressTickets++;
+                        break;
+                    case 'Cerrado':
+                        closedTickets++;
+                        break;
+                }
+            });
+
+            renderChart(openTickets, inProgressTickets, closedTickets);
+        }
+
+        function renderChart(open, inProgress, closed) {
+            const ctx = document.getElementById('ticketsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Abierto', 'En Progreso', 'Cerrado'],
+                    datasets: [{
+                        data: [open, inProgress, closed],
+                        backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            signOut(auth).then(() => {
+                window.location.href = '/index.html';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="text-gray-600 body-font">
+        <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+            <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+                <span class="ml-3 text-xl">Sistema de Tickets</span>
+            </a>
+            <nav id="navbar" class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+                <a href="/dashboard.html" class="mr-5 hover:text-gray-900">Dashboard</a>
+                <a href="/crear-ticket.html" class="mr-5 hover:text-gray-900">Crear Ticket</a>
+                <a href="/lista-tickets.html" class="mr-5 hover:text-gray-900">Lista de Tickets</a>
+                <a href="/perfil.html" class="mr-5 hover:text-gray-900">Perfil</a>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cerrar Sesión</button>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto mt-10">
+        <h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+        <canvas id="ticketsChart" width="400" height="400"></canvas>
+    </div>
+</body>
+</html>

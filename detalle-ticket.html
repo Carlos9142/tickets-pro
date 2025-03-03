@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Ticket</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAccQ-4A0H7rV4PCHFVoxA7VEkHOc97HlM",
+            authDomain: "tickets-pro-d8d04.firebaseapp.com",
+            projectId: "tickets-pro-d8d04",
+            messagingSenderId: "128182958053",
+            appId: "1:128182958053:web:58b7dabb25d97d1cfd210c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        let ticketId = new URLSearchParams(window.location.search).get('id');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                fetchTicketDetails(ticketId);
+            } else {
+                window.location.href = '/index.html';
+            }
+        });
+
+        async function fetchTicketDetails(ticketId) {
+            const ticketRef = doc(db, "tickets", ticketId);
+            const ticketSnap = await getDoc(ticketRef);
+
+            if (ticketSnap.exists()) {
+                const ticket = ticketSnap.data();
+                renderTicketDetails(ticket);
+            } else {
+                console.log("No such document!");
+            }
+        }
+
+        function renderTicketDetails(ticket) {
+            document.getElementById('ticket-details').innerHTML = `
+                <h2 class="text-xl font-bold mb-2">${ticket.title}</h2>
+                <p><strong>ID:</strong> ${ticket.id}</p>
+                <p><strong>Cliente:</strong> ${ticket.clientName}</p>
+                <p><strong>Descripción:</strong> ${ticket.description}</p>
+                <p><strong>Prioridad:</strong> ${ticket.priority}</p>
+                <p><strong>Categoría:</strong> ${ticket.category}</p>
+                <p><strong>Estado:</strong> ${ticket.status}</p>
+                <p><strong>Fecha de Registro:</strong> ${ticket.registrationDate}</p>
+                <p><strong>Hora del Ticket:</strong> ${ticket.ticketHour}</p>
+                <p><strong>Agente Asignado:</strong> ${ticket.agentAssigned || 'N/A'}</p>
+                <p><strong>Comentarios del Administrador:</strong> ${ticket.adminComments || 'N/A'}</p>
+                <p><strong>Resuelto:</strong> <input type="checkbox" id="resolved" ${ticket.resolved ? 'checked' : ''} onchange="updateResolvedStatus('${ticketId}', this.checked)"></p>
+            `;
+        }
+
+        async function updateResolvedStatus(ticketId, resolved) {
+            const ticketRef = doc(db, "tickets", ticketId);
+            await updateDoc(ticketRef, {
+                resolved: resolved
+            });
+            alert(`El estado de resolución se actualizó a ${resolved ? 'resuelto' : 'no resuelto'}`);
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <header class="text-gray-600 body-font">
+        <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+            <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+                <span class="ml-3 text-xl">Sistema de Tickets</span>
+            </a>
+            <nav id="navbar" class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+                <a href="/dashboard.html" class="mr-5 hover:text-gray-900">Dashboard</a>
+                <a href="/crear-ticket.html" class="mr-5 hover:text-gray-900">Crear Ticket</a>
+                <a href="/lista-tickets.html" class="mr-5 hover:text-gray-900">Lista de Tickets</a>
+                <a href="/perfil.html" class="mr-5 hover:text-gray-900">Perfil</a>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cerrar Sesión</button>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto mt-10">
+        <h1 class="text-2xl font-bold mb-4">Detalle del Ticket</h1>
+        <div id="ticket-details"></div>
+    </div>
+</body>
+</html>

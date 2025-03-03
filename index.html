@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login / Registro</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM6E5c5b5qV9Yl5Wf92pmk5o9gf5eK7jz0p3N3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
@@ -21,6 +21,18 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth();
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                login();
+            });
+
+            document.getElementById('register-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                register();
+            });
+        });
 
         function login() {
             const email = document.getElementById('login-email').value;
@@ -62,7 +74,7 @@
     <div class="w-full max-w-md">
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <h2 class="text-xl font-bold mb-4 text-center">Iniciar Sesión</h2>
-            <form onsubmit="event.preventDefault(); login();">
+            <form id="login-form">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="login-email">
                         Correo Electrónico
@@ -83,7 +95,7 @@
             </form>
             <hr class="my-4">
             <h2 class="text-xl font-bold mb-4 text-center">Registrarse</h2>
-            <form onsubmit="event.preventDefault(); register();">
+            <form id="register-form">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="register-email">
                         Correo Electrónico

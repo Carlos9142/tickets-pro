@@ -32,6 +32,7 @@
                 })
                 .catch((error) => {
                     console.error('Error logging in:', error.message);
+                    alert('Error al iniciar sesión: ' + error.message);
                 });
         }
 
@@ -52,6 +53,7 @@
                 })
                 .catch((error) => {
                     console.error('Error registering:', error.message);
+                    alert('Error al registrarse: ' + error.message);
                 });
         }
     </script>
